@@ -49,6 +49,8 @@ describe('Escrow', () => {
       const deadline = (await time.latest()) + 3600;
       const Escrow = await ethers.getContractFactory('Escrow');
 
+      // Deploy with value: 0 – the factory reference is used to look up the
+      // custom error definition without needing a separate deployed instance.
       await expect(
         Escrow.connect(depositor).deploy(
           beneficiary.address,
@@ -56,10 +58,7 @@ describe('Escrow', () => {
           deadline,
           { value: 0 },
         ),
-      ).to.be.revertedWithCustomError(
-        await Escrow.deploy(beneficiary.address, arbitrator.address, deadline, { value: 1 }),
-        'InsufficientDeposit',
-      );
+      ).to.be.revertedWithCustomError(Escrow, 'InsufficientDeposit');
     });
   });
 

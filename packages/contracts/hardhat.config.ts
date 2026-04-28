@@ -14,7 +14,10 @@ const config: HardhatUserConfig = {
     version: '0.8.24',
     settings: {
       optimizer: { enabled: true, runs: 200 },
-      // Enable via-IR for better optimisation and to avoid stack-too-deep errors
+      // viaIR compiles through the Yul intermediate representation, which avoids
+      // "stack too deep" errors in complex contracts and produces smaller bytecode.
+      // Disable this flag if you need faster incremental compile times in development:
+      //   set `viaIR: process.env.NODE_ENV !== 'test'`
       viaIR: true,
     },
   },

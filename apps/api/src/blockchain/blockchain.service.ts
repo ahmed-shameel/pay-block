@@ -153,27 +153,48 @@ export class BlockchainService implements OnModuleInit {
     const abi = type === ContractType.ESCROW ? ESCROW_ABI : MILESTONE_ABI;
     const instance = new ethers.Contract(onChainAddress, abi, this.signer);
 
-    let tx: ethers.ContractTransactionResponse;
-
-    if (type === ContractType.ESCROW) {
-      if (action === 'release') tx = await (instance.release as () => Promise<ethers.ContractTransactionResponse>)();
-      else if (action === 'refund') tx = await (instance.refund as () => Promise<ethers.ContractTransactionResponse>)();
-      else if (action === 'dispute') tx = await (instance.dispute as () => Promise<ethers.ContractTransactionResponse>)();
-      else throw new Error(`Unknown escrow action: ${action}`);
-    } else if (type === ContractType.MILESTONE) {
-      if (action === 'complete_milestone') {
-        const idx = params?.milestoneIndex as number;
-        tx = await (instance.completeMilestone as (idx: number) => Promise<ethers.ContractTransactionResponse>)(idx);
-      } else if (action === 'cancel') {
-        tx = await (instance.cancel as () => Promise<ethers.ContractTransactionResponse>)();
-      } else {
-        throw new Error(`Unknown milestone action: ${action}`);
-      }
-    } else {
-      throw new Error(`Action not supported for contract type: ${type}`);
-    }
-
+    const tx = await this.dispatchContractAction(type, instance, action, params);
     const receipt = await tx.wait();
     return receipt?.hash ?? '0x';
+  }
+
+  /**
+   * Dispatches the correct on-chain call based on contract type and action name.
+   * Using a switch statement makes it easy to add new contract types in the future.
+   */
+  private async dispatchContractAction(
+    type: ContractType,
+    instance: ethers.Contract,
+    action: string,
+    params?: Record<string, unknown>,
+  ): Promise<ethers.ContractTransactionResponse> {
+    type ContractFn = () => Promise<ethers.ContractTransactionResponse>;
+
+    switch (type) {
+      case ContractType.ESCROW: {
+        const escrowActions: Record<string, ContractFn> = {
+          release: () => (instance.release as ContractFn)(),
+          refund:  () => (instance.refund  as ContractFn)(),
+          dispute: () => (instance.dispute as ContractFn)(),
+        };
+        const fn = escrowActions[action];
+        if (!fn) throw new Error(`Unknown escrow action: ${action}`);
+        return fn();
+      }
+
+      case ContractType.MILESTONE: {
+        if (action === 'complete_milestone') {
+          const idx = Number(params?.milestoneIndex ?? 0);
+          return (instance.completeMilestone as (i: number) => Promise<ethers.ContractTransactionResponse>)(idx);
+        }
+        if (action === 'cancel') {
+          return (instance.cancel as ContractFn)();
+        }
+        throw new Error(`Unknown milestone action: ${action}`);
+      }
+
+      default:
+        throw new Error(`Action not supported for contract type: ${type}`);
+    }
   }
 }
