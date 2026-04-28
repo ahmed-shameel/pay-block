@@ -1,0 +1,38 @@
+{
+  "name": "pay-block",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PayBlock – hybrid payment platform combining Stripe fiat payments with blockchain-based verification and programmable payment contracts",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:contracts": "npm run node --workspace=packages/contracts",
+    "deploy:contracts": "npm run deploy --workspace=packages/contracts"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "lodash": "4.18.1",
+    "@nestjs/swagger": {
+      "lodash": "4.18.1"
+    },
+    "@nestjs/config": {
+      "lodash": "4.18.1"
+    },
+    "@nomicfoundation/ignition-core": {
+      "lodash": "4.18.1"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

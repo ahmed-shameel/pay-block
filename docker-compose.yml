@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: payblock_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-payblock}
+      POSTGRES_USER: ${DB_USER:-payblock}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-payblock}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Local Hardhat Node (blockchain) ───────────────────────
+  hardhat:
+    build:
+      context: ./packages/contracts
+      dockerfile: Dockerfile.dev
+    container_name: payblock_hardhat
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+
+  # ── Backend API ────────────────────────────────────────────
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: payblock_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-payblock}
+      DB_USER: ${DB_USER:-payblock}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      JWT_SECRET: ${JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      BLOCKCHAIN_RPC_URL: ${BLOCKCHAIN_RPC_URL}
+      BLOCKCHAIN_PRIVATE_KEY: ${BLOCKCHAIN_PRIVATE_KEY}
+      PAYMENT_REGISTRY_ADDRESS: ${PAYMENT_REGISTRY_ADDRESS}
+      ESCROW_FACTORY_ADDRESS: ${ESCROW_FACTORY_ADDRESS}
+    ports:
+      - "3001:3001"
+
+  # ── Frontend Dashboard ─────────────────────────────────────
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: payblock_web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:3001/api
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

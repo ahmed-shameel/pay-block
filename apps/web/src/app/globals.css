@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens */
+:root {
+  --brand: #2563eb;
+  --brand-dark: #1d4ed8;
+  --surface: #f8fafc;
+  --text: #0f172a;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--text);
+}
