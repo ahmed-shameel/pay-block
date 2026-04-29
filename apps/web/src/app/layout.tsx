@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/lib/query-provider';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AuthGuard } from '@/components/layout/AuthGuard';
+import { AuthLayoutShell } from '@/components/layout/AuthLayoutShell';
 
 export const metadata: Metadata = {
   title: 'PayBlock – Hybrid Payment Platform',
@@ -14,8 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="flex min-h-screen bg-slate-50">
         <QueryProvider>
-          <Sidebar />
-          <main className="flex-1 p-8">{children}</main>
+          <AuthGuard>
+            <AuthLayoutShell>{children}</AuthLayoutShell>
+          </AuthGuard>
         </QueryProvider>
       </body>
     </html>

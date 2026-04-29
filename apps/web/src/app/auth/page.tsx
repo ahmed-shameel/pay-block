@@ -25,11 +25,11 @@ export default function AuthPage() {
           ? { email, password }
           : { email, password, displayName };
 
-      const response = await api.post<{ access_token: string }>(endpoint, body);
+      const response = await api.post<{ accessToken: string }>(endpoint, body);
       
       // Store token
       if (typeof window !== 'undefined') {
-        localStorage.setItem('pb_token', response.access_token);
+        localStorage.setItem('pb_token', response.accessToken);
       }
 
       // Redirect to dashboard
