@@ -1,7 +1,30 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 /** Landing page – redirects authenticated users to /dashboard */
 export default function Home() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // Check if token exists
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('pb_token');
+      if (token) {
+        setIsAuthenticated(true);
+        router.push('/dashboard');
+      }
+    }
+    setLoaded(true);
+  }, [router]);
+
+  if (!loaded) return null;
+  if (isAuthenticated) return null;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8">
       <div className="text-center">
@@ -16,10 +39,10 @@ export default function Home() {
 
       <div className="flex gap-4">
         <Link
-          href="/dashboard"
+          href="/auth"
           className="px-6 py-3 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors"
         >
-          Open Dashboard
+          Get Started
         </Link>
         <a
           href="/api/docs"

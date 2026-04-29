@@ -51,11 +51,11 @@ export class Payment {
 
   /** Stripe PaymentIntent id or crypto tx hash */
   @Index()
-  @Column({ name: 'provider_tx_id', nullable: true })
+  @Column({ name: 'provider_tx_id', type: 'varchar', nullable: true })
   providerTxId: string | null;
 
   /** Keccak-256 hash stored on-chain for immutable proof */
-  @Column({ name: 'blockchain_tx_hash', nullable: true })
+  @Column({ name: 'blockchain_tx_hash', type: 'varchar', nullable: true })
   blockchainTxHash: string | null;
 
   @Column({ name: 'blockchain_block_number', nullable: true, type: 'int' })

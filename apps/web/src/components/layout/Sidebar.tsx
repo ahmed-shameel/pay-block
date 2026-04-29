@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
@@ -12,6 +12,14 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pb_token');
+    }
+    router.push('/');
+  };
 
   return (
     <aside className="w-56 min-h-screen bg-white border-r border-slate-200 flex flex-col p-4 gap-2 shadow-sm">
@@ -41,7 +49,15 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto text-xs text-slate-400">v1.0.0</div>
+      <div className="mt-auto space-y-2">
+        <button
+          onClick={handleLogout}
+          className="w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+        >
+          Logout
+        </button>
+        <div className="text-xs text-slate-400 text-center">v1.0.0</div>
+      </div>
     </aside>
   );
 }

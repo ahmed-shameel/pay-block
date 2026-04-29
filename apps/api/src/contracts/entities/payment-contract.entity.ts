@@ -62,11 +62,11 @@ export class PaymentContract {
   config: Record<string, unknown> | null;
 
   /** On-chain contract address once deployed */
-  @Column({ name: 'on_chain_address', nullable: true })
+  @Column({ name: 'on_chain_address', type: 'varchar', nullable: true })
   onChainAddress: string | null;
 
   /** Transaction hash of the deployment tx */
-  @Column({ name: 'deploy_tx_hash', nullable: true })
+  @Column({ name: 'deploy_tx_hash', type: 'varchar', nullable: true })
   deployTxHash: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
