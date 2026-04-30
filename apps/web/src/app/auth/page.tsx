@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, getApiErrorMessage } from '@/lib/api';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -35,8 +35,7 @@ export default function AuthPage() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Authentication failed';
-      setError(errorMsg);
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
